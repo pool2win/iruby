@@ -21,7 +21,7 @@ module IRuby
     class << self
       # @private
       def convert(obj, options)
-        Representation.new(obj, options)
+        Representation.build(obj, options)
       end
 
       # @private
@@ -184,15 +184,13 @@ module IRuby
       end
 
       class << self
-        alias old_new new
-
-        def new(obj, options)
-          options = { format: options } if String === options
-          if Representation === obj
+        def build(obj, options)
+          options = { format: options } if options.is_a?(String)
+          if obj.is_a?(Representation)
             options = obj.options.merge(options)
             obj = obj.object
           end
-          old_new(obj, options)
+          Representation.new(obj, options)
         end
       end
     end

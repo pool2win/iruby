@@ -1,6 +1,7 @@
 require 'iruby/session_adapter'
 require 'iruby/session/mixin'
 
+require 'date'
 require 'securerandom'
 
 module IRuby
@@ -81,7 +82,8 @@ module IRuby
         msg_id:   SecureRandom.uuid,
         username: 'kernel',
         session:  @session_id,
-        version:  '5.0'
+        version:  '5.0',
+        date: DateTime.now.iso8601,
       }
       @adapter.send(sock, serialize(idents, header, content))
     end

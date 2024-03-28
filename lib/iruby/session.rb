@@ -33,15 +33,18 @@ module IRuby
       shell_port = config['shell_port']
       iopub_port = config['iopub_port']
       stdin_port = config['stdin_port']
+      control_port = config['control_port']
 
       @shell_socket, @shell_port = @adapter.make_router_socket(protocol, host, shell_port)
       @iopub_socket, @iopub_port = @adapter.make_pub_socket(protocol, host, iopub_port)
       @stdin_socket, @stdin_port = @adapter.make_router_socket(protocol, host, stdin_port)
+      @control_socket, @control_port = @adapter.make_router_socket(protocol, host, control_port)
 
       @sockets = {
         publish: @iopub_socket,
         reply:   @shell_socket,
-        stdin:   @stdin_socket
+        stdin:   @stdin_socket,
+        control: @control_socket
       }
     end
 
@@ -104,7 +107,7 @@ module IRuby
 
     def check_socket_type(socket_type)
       case socket_type
-      when :publish, :reply, :stdin
+      when :publish, :reply, :stdin, :control
         @sockets[socket_type]
       else
         raise ArgumentError, "Invalid socket type #{socket_type}"

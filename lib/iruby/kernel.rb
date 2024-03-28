@@ -123,15 +123,17 @@ module IRuby
     # @private
     def run
       send_status :starting
-      while @running
-        dispatch
+      Thread.new do
+        dispatch(:control) while @running
       end
+      dispatch(:reply) while @running
     end
 
     # @private
-    def dispatch
-      msg = @session.recv(:reply)
+    def dispatch(socket_type)
+      msg = @session.recv(socket_type)
       IRuby.logger.debug "Kernel#dispatch: msg = #{msg}"
+
       type = msg[:header]['msg_type']
       raise "Unknown message type: #{msg.inspect}" unless type =~ /comm_|_request\Z/ && respond_to?(type)
       begin
@@ -259,7 +261,8 @@ module IRuby
 
     # @private
     def connect_request(msg)
-      @session.send(:reply, :connect_reply, Hash[%w(shell_port iopub_port stdin_port hb_port).map {|k| [k, @config[k]] }])
+      response = Hash[%w(shell_port iopub_port stdin_port hb_port control_port).map {|k| [k, @config[k]] }]
+      @session.send(:reply, :connect_reply, response)
     end
 
     # @private

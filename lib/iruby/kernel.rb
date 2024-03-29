@@ -289,7 +289,11 @@ module IRuby
     def comm_open(msg)
       comm_id = msg[:content]['comm_id']
       target_name = msg[:content]['target_name']
-      Comm.comm[comm_id] = Comm.target[target_name].new(target_name, comm_id)
+      if Comm.target.include? target_name
+        Comm.comm[comm_id] = Comm.target[target_name].new(target_name, comm_id)
+      else
+        IRuby.logger.info "No such comm target registered #{target_name}"
+      end
     end
 
     # @private

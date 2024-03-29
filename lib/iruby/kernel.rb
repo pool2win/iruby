@@ -308,6 +308,13 @@ module IRuby
       Comm.comm.delete(comm_id)
     end
 
+    # @private
+    # We always send no found comms message back for now
+    def comm_info_request(_)
+      found_comms = {}
+      @session.send(:reply, :comm_info_reply, status: :ok, comms: found_comms)
+    end
+
     private
 
     def init_parent_process_poller

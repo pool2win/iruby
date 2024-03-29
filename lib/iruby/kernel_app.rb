@@ -79,14 +79,15 @@ module IRuby
         Dir.chdir(@work_dir)
       end
 
+      check_bundler {|e| IRuby.logger.warn "Could not load bundler: #{e.message}" }
+
+      # Require iruby before boot_file to allow setup of Kernel::events in boot_file
+      require "iruby"
       if @boot_file
         IRuby.logger.debug("iruby kernel") { "Load the boot file: #{@boot_file}" }
         require @boot_file
       end
 
-      check_bundler {|e| IRuby.logger.warn "Could not load bundler: #{e.message}" }
-
-      require "iruby"
       Kernel.new(@connection_file).run
     rescue Exception => e
       IRuby.logger.fatal "Kernel died: #{e.message}\n#{e.backtrace.join("\n")}"

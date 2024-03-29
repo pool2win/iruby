@@ -44,7 +44,11 @@ module IRuby
       require 'irb'
       require 'irb/completion'
       IRB.setup(nil)
-      @main = TOPLEVEL_BINDING.eval("self").dup
+      @main = if defined?(CustomBinding)
+                CustomBinding.instance
+              else
+                TOPLEVEL_BINDING.eval('self').dup
+              end
       init_main_object(@main)
       @workspace = IRB::WorkSpace.new(@main)
       @irb = IRB::Irb.new(@workspace)

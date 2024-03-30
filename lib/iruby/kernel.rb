@@ -5,7 +5,7 @@ module IRuby
     RED = "\e[31m"
     RESET = "\e[0m"
 
-    @events = EventManager.new([:initialized])
+    @events = EventManager.new([:initialized, :before_initialize])
 
     class << self
       # Return the event manager defined in the `IRuby::Kernel` class.
@@ -25,6 +25,9 @@ module IRuby
 
       # Returns the singleton kernel instance
       attr_accessor :instance
+
+      # Allow custom bindings to be set from boot_file using initialized event
+      attr_accessor :custom_binding
     end
 
     # Returns a session object
@@ -38,6 +41,8 @@ module IRuby
     ].freeze
 
     def initialize(config_file, session_adapter_name=nil)
+      self.class.events.trigger(:before_initialize)
+
       @config = MultiJson.load(File.read(config_file))
       IRuby.logger.debug("IRuby kernel start with config #{@config}")
       Kernel.instance = self

@@ -39,7 +39,7 @@ module IRuby
       require 'irb'
       require 'irb/completion'
       IRB.setup(nil)
-      @main = TOPLEVEL_BINDING.eval("self").dup
+      @main = IRuby::Kernel.custom_binding || TOPLEVEL_BINDING.eval("self").dup
       init_main_object(@main)
       @workspace = IRB::WorkSpace.new(@main)
       @irb = IRB::Irb.new(@workspace)
@@ -86,7 +86,7 @@ module IRuby
     end
 
     def eval_binding
-      TOPLEVEL_BINDING
+      IRuby::Kernel.custom_binding || TOPLEVEL_BINDING
     end
 
     def eval(code, store_history)

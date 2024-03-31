@@ -145,6 +145,16 @@ module IRuby
       ensure
         send_status :idle
       end
+    rescue SignalException => e
+      IRuby.logger.debug "Kernel received signal: #{e} #{e.signo}"
+      case e.signo
+      when Signal.list['TERM'], Signal.list['KILL']
+        shutdown
+      when Signal.list['INT']
+        IRuby.logger.debug "Kernel received INT signal: #{e} #{e.signo}"
+      else
+        IRuby.logger.debug "Kernel received UNHANDLED signal: #{e} #{e.signo}"
+      end
     rescue Exception => e
       IRuby.logger.debug "Kernel error: #{e.message}\n#{e.backtrace.join("\n")}"
       @session.send(:publish, :error, error_content(e))

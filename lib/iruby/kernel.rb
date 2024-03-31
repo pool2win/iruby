@@ -5,7 +5,7 @@ module IRuby
     RED = "\e[31m"
     RESET = "\e[0m"
 
-    @events = EventManager.new([:initialized, :before_initialize])
+    @events = EventManager.new([:initialized, :before_initialize, :before_shutdown])
 
     class << self
       # Return the event manager defined in the `IRuby::Kernel` class.
@@ -278,6 +278,11 @@ module IRuby
     # @private
     def shutdown_request(msg)
       @session.send(:reply, :shutdown_reply, msg[:content])
+      shutdown
+    end
+
+    def shutdown
+      self.class.events.trigger(:before_shutdown, self)
       @running = false
     end
 
